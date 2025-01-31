@@ -110,3 +110,28 @@ If it doesnt work you may have to pass Cache-Control headers in webpack.
 **A**: No, Webpack does not automatically exclude test files. You need to explicitly configure it to exclude them during the build process. By default, Webpack only processes files defined as entry points and their dependencies, so test files are not included unless referenced in your source code.
 (Any libraries or frameworks used only for testing (e.g., Jest) are listed as devDependencies in package.json. These dependencies are not included in the production bundle)
 
+**Q**:  How webpack build handles package.json, and its dependencies?
+**A**: Webpack itself doesn't directly handle package.json, but it relies on it to understand the project's dependencies and configurations.
+When you run Webpack, it starts at your specified entry point and builds a dependency graph. 
+It includes all the modules that your application directly and indirectly imports, including third-party libraries.
+
+**Q**:   What happens to unused dependencies
+**A**: Unused dependencies in a Webpack project can be handled in a few ways, and their fate largely depends on how you manage your project and the tools you use.
+Lets understand with an example.
+If you're using Lodash and only need one specific function, Webpack can help you optimize the bundle size, but how you import that function matters.
+
+**1. Tree Shaking with ES Modules**
+If you import Lodash using the ES module syntax, Webpack can effectively tree shake unused parts of the library. For example if you use:
+`import { debounce } from 'lodash’;`
+In this case, Webpack will only include the debounce function in your bundle and exclude the rest of the Lodash library
+**2. CommonJS Imports**
+If you import Lodash using CommonJS syntax like this:
+`const _ = require('lodash');`
+Webpack may include the entire Lodash library in the bundle, even if you're only using one function. This is because CommonJS does not provide the same static structure for tree shaking as ES modules.
+**3. Lodash-es**
+If you want to use Lodash and benefit from tree shaking while using ES module syntax, consider using lodash-es, which is the ES module version of Lodash. You would do the following:
+`import { debounce } from 'lodash-es';`
+This approach helps ensure that only the necessary parts are included in the final bundle.
+
+To avoid bundling the entire Lodash library when you only need one function, use ES module syntax for imports. If you’re using CommonJS or the default Lodash package, Webpack may include the entire library in the final bundle. For optimal results, consider using lodash-es.
+
